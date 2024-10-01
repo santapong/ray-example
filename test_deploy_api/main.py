@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 import ray
 from ray import serve
+from ray.runtime_env import RuntimeEnv
 load_dotenv()
 
 from fastapi import FastAPI
@@ -25,9 +26,12 @@ async def deploy():
     return {"Hello":"world"}
 
 @app.post('/register')
-async def register(name: str, s3_path: str, route_prefix:str):
+async def register(name: str, s3_path: str=None):
     """Read Python module from S3 and import it dynamically."""
     # Use s3fs to read the file directly from S3
+    route_prefix = f'/{name}'
+    s3_path = f's3://santapong/test/{name}.py'
+    
     s3 = s3fs.S3FileSystem(anon=False)
     with s3.open(s3_path, 'r') as f:
         file_content = f.read()
@@ -42,11 +46,15 @@ async def register(name: str, s3_path: str, route_prefix:str):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     
-    imported_module = import_module_from_s3(bucket_name, s3_key, module_name)
+    imported_module = module
+    
     
     # Step 2: Access the 'app' variable from the imported module
-    app = imported_module.app
+    deploy = imported_module.Deploy
 
+    runtime_env = RuntimeEnv()
+
+    app = deploy.option(ray_actor_options=).bind()
     # Step 3: Use the 'app' with Ray Serve
     serve.run(app, route_prefix=route_prefix, name=name)
     
@@ -66,7 +74,7 @@ async def delete(name: str):
 @app.get('/check')
 async def check(name: str):
     status = serve.status()
-    return { "msg" : status.applications[name]}
+    return { name : status.applications[name]}
 
 @app.get('/models')
 async def models():
