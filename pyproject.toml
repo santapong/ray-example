@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "rays"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<=3.12"
+ray = {extras = ["all"], version = "^2.37.0"}
+smartopen = "^0.2"
+python-dotenv = "^1.0.1"
+s3fs = "2024.5.0"
+boto3 = "1.34.106"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
