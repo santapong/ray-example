@@ -12,6 +12,7 @@ class Counter:
     def __call__(self, request: starlette.requests.Request):
         from reletional_file import hello
         
-        return {"msg":f"{hello()}"}
+        return {"msg":f"{hello()}",
+                "version":"Test"}
 
 Deploy = Counter

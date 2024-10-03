@@ -29,7 +29,7 @@ app = FastAPI()
 async def deploy():
     return {"Hello":"world"}
 
-@app.post('/register')
+@app.post('/deploy')
 async def register(name: str, s3_path: str=None):
     """Read Python module from S3 and import it dynamically."""
     # Use s3fs to read the file directly from S3
