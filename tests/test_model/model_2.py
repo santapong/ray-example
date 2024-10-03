@@ -7,4 +7,4 @@ class model_2:
     def __init__(self):
         return "hello"
     
-app = model_2.bind()
+Deploy = model_2

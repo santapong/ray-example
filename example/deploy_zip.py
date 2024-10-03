@@ -5,21 +5,29 @@ import sys
 import importlib.util
 import types
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+import ray
+from ray import serve
+from ray.runtime_env import RuntimeEnv
+
 # Function to import a module from in-memory python code
-    """
-    The function `import_modules_from_zip_s3` loads Python modules from a .zip file stored in an S3
-    bucket and allows access to specific modules and their functions.
-    
-    :param module_name: The `module_name` in the provided code refers to the name of the module you want
-    to access from the loaded modules. In this case, it is used to specify which module you want to use
-    from the modules that were loaded from the zip file
-    :param python_code: The code you provided defines a function `load_module_from_code` that loads a
-    Python module from in-memory code, and another function `import_modules_from_zip_s3` that imports
-    modules from a zip file stored in an S3 bucket
-    :return: The `import_modules_from_zip_s3` function returns a dictionary where the keys are the
-    module names extracted from the .py files in the zip archive, and the values are the corresponding
-    module objects loaded into memory using the `load_module_from_code` function.
-    """
+"""
+The function `import_modules_from_zip_s3` loads Python modules from a .zip file stored in an S3
+bucket and allows access to specific modules and their functions.
+
+:param module_name: The `module_name` in the provided code refers to the name of the module you want
+to access from the loaded modules. In this case, it is used to specify which module you want to use
+from the modules that were loaded from the zip file
+:param python_code: The code you provided defines a function `load_module_from_code` that loads a
+Python module from in-memory code, and another function `import_modules_from_zip_s3` that imports
+modules from a zip file stored in an S3 bucket
+:return: The `import_modules_from_zip_s3` function returns a dictionary where the keys are the
+module names extracted from the .py files in the zip archive, and the values are the corresponding
+module objects loaded into memory using the `load_module_from_code` function.
+"""
 def load_module_from_code(module_name, python_code):
     # Create a new module object
     module = types.ModuleType(module_name)
@@ -59,14 +67,16 @@ zip_key = 'test_zip/model_1.zip'
 loaded_modules = import_modules_from_zip_s3(bucket_name, zip_key)
 
 # Access the specific module and its functions
+name = 'model_1'
 module_name = 'model_1'  # The module you want to use
 custom_module = loaded_modules[module_name]
+route_prefix = '/model_1'
 
 # Now you can use functions and classes from the module
 deploy = custom_module.Deploy
 
 
-runtime_env = RuntimeEnv(pip=['numpy==1.26.4'])
+runtime_env = RuntimeEnv(pip=['numpy==1.26.4'],working_dir='s3://santapong/test_zip/model_1.zip')
 
 app = deploy.options(name=name,ray_actor_options={"num_cpus": 1.0,"runtime_env":runtime_env}).bind()
 # Step 3: Use the 'app' with Ray Serve

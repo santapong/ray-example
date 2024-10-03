@@ -22,7 +22,7 @@ def deploy(name: str):
         file_content = f.read()
 
     # Save the file content to a temporary file
-    local_file_path = f'/tmp/{name}.py'
+    local_file_path = f'./tmp/{name}.py'
     with open(local_file_path, 'w') as local_file:
         local_file.write(file_content)
 
