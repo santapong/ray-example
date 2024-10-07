@@ -42,7 +42,6 @@ class Model(Base):
 #     inspect = inspect(engine)   
 #     if not inspect.has_table(User.__tablename__):   
 #             Base.metadata.create_all(engine)        
-        
 
 if __name__ == '__main__':
     
