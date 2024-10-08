@@ -21,4 +21,4 @@ LOGGING_FORMAT = ''
 # Log config
 LOGGINE_LEVEL = ''
 
-RAY_DASHBOARD_URL = 'http://localhost:8265'
+RAY_DASHBOARD_URL = 'http://192.168.232.208:8265'
