@@ -11,7 +11,7 @@ from logging.handlers import RotatingFileHandler
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import UJSONResponse
 
-from utils import SessionDB, import_modules_from_zip_s3
+from utils import SessionDB, import_modules_from_zip_s3, update_file_in_zip_on_s3
 from schema.database.base import Model
 
 from config import LOGGING_FORMAT, SQLALCHEMY_URL, S3_BUCKET

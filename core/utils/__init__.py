@@ -4,4 +4,4 @@
 from .session import SessionDB
 from .requestTemplate import generateTemplate, HEADERS, RAY_DEPLOY_URL
 from .deploy import import_modules_from_zip_s3
-from .filehandlers import to_S3URI
+from .filehandle import to_S3URI, update_file_in_zip_on_s3
