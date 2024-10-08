@@ -1,26 +1,103 @@
+from pdb import run
+from typing_extensions import runtime
+from flask import session
 import uvicorn
+import importlib.util
+import s3fs
 
 import logging
 from logging.handlers import RotatingFileHandler
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import UJSONResponse
 
-from utils import CreateSession
+from utils import SessionDB
+from schema.database.base import Model
 
-app = FastAPI()
+from config import LOGGING_FORMAT, SQLALCHEMY_URL
+
+import ray
+from ray import serve
+from ray.runtime_env import RuntimeEnv
+
+from dotenv import load_dotenv
+load_dotenv()
+
+logging.getLogger(__name__)
+logging.Formatter()
+
+app = FastAPI(default_response_class=UJSONResponse)
+session = SessionDB()
+s3 = s3fs.S3FileSystem(anon=False)
 
 @app.get('/models')
 async def getmodels():
-    return ""
+    datas = session.getdata(Model)
+    return {"msg": datas}
+    
+@app.get('/model/name')
+async def getmodel_name(model_name: str):
+    datas = session.getdata_by_condition(Model, model_name=model_name)
+    return {"msg":datas}
 
+@app.post('/test_deploy')
+async def test_deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str):
+    session.insert(model_name=model_name, version=version, route_prefix=route_prefix, working_dir=working_dir, runtime_env=runtime_env)
+    return { "msg": "Test deploy complete" }
+    
 @app.post('/deploy')
-async def deploy():
-    return
+async def deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str):
+    """Read Python module from S3 and import it dynamically."""
+    # Use s3fs to read the file directly from S3
+    route_prefix = f'/{model_name}'
+    s3_path = f's3://santapong/test_zip/{model_name}.py'
+    
+    s3 = s3fs.S3FileSystem(anon=False)
+    with s3.open(s3_path, 'r') as f:
+        file_content = f.read()
+
+    # Save the file content to a temporary file
+    local_file_path = f'/tmp/{model_name}.py'
+    with open(local_file_path, 'w') as local_file:
+        local_file.write(file_content)
+
+    # Import the module dynamically using importlib
+    spec = importlib.util.spec_from_file_location(model_name, local_file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    
+    imported_module = module
+    
+    # Step 2: Access the 'app' variable from the imported module
+    deploy = imported_module.Deploy
+
+    working_dir = s3_path
+    runtime_env = RuntimeEnv(pip=['emoji==2.13.2'],working_dir=working_dir)
+
+    app = deploy.options(name=model_name,ray_actor_options={"num_cpus":1.0,"runtime_env":runtime_env}).bind()
+    # Step 3: Use the 'app' with Ray Serve
+    serve.run(app, route_prefix=route_prefix, name=model_name)
+    
+    return {"msg":f"deploy {model_name} sucessfully"}
 
 @app.post('infer')
-async def inferencr():
+async def inference():
     return
 
+@app.post("/uploadzip/")
+async def upload_zip(file: UploadFile = File(...)):
+    # Check file extension
+    if not file.filename.endswith('.zip'):
+        return UJSONResponse(content={"error": "File is not a zip file"}, status_code=400)
+
+    content = await file.read()
+    
+    # Save the uploaded file
+    s3_path = f's3://santapong/test_zip/{file.filename}'
+    with s3.open(s3_path, "wb") as f:
+        f.write(content)
+
+    return UJSONResponse(content={"filename": file.filename}, status_code=200)
 
 if __name__ == '__main__':
     uvicorn.run('main:app', host="127.0.0.1", port=8001, reload=True)
