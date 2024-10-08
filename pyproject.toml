@@ -14,9 +14,10 @@ s3fs = "2024.5.0"
 boto3 = "1.34.106"
 sqlalchemy = "^2.0.35"
 click = "^8.1.7"
+ujson = "^5.10.0"
+locust = "^2.31.8"
+python-multipart = "^0.0.12"
 
-[tool.poetry.scripts]
-ray-example = "cli:cli"
 
 [build-system]
 requires = ["poetry-core"]
