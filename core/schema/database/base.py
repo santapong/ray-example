@@ -6,7 +6,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy import Engine, create_engine, Column, Integer, String, inspect
+from sqlalchemy import Engine, create_engine, Column, Integer, String, inspect, JSON
 
 from config import SQLALCHEMY_URL, LOGGING_FORMAT
 
@@ -36,7 +36,7 @@ class Model(Base):
     route_prefix = Column(String, unique=True)
     version = Column(Integer)
     working_dir = Column(String , unique=True)
-    runtime_env = Column(String)
+    runtime_env = Column(JSON)
 
 # def create_table_if_not_exist(
 #         engine: Engine
@@ -50,13 +50,13 @@ if __name__ == '__main__':
     # Create Database
     Base.metadata.create_all(engine)
 
-    Session = sessionmaker(bind=engine)
+    # Session = sessionmaker(bind=engine)
     
-    with Session() as session:
-        new_model = Model(id=1, model_name="Hello", version='1', working_dir='test', runtime_env='test22', route_prefix='/hello')
-        session.add(new_model)
-        session.commit()
+    # with Session() as session:
+    #     new_model = Model(id=1, model_name="Hello", version='1', working_dir='test', runtime_env='test22', route_prefix='/hello')
+    #     session.add(new_model)
+    #     session.commit()
 
-        models = session.query(Model).all()
-        for model in models:
-            print(f'Model ID:{model.id}, model_name:{model.model_name}')
+    #     models = session.query(Model).all()
+    #     for model in models:
+    #         print(f'Model ID:{model.id}, model_name:{model.model_name}')
