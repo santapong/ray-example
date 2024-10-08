@@ -60,8 +60,16 @@ async def test_deploy(model_name: str, version: int, route_prefix: str, working_
     loaded_modules = import_modules_from_zip_s3(bucket_name='santapong', zip_key='test_zip/model_1.zip', s3=s3)
     custom_module = loaded_modules[model_name]
     
+    # prepare for deploy an specify Application
+    deploy = custom_module.Deploy
+    
+    runtime_env = RuntimeEnv(working_dir=working_dir)
+    
+    # Application for deploy
+    app = deploy.options(name=model_name, ray_actor_options={"num_cpus":1.0,"runtime_env":runtime_env}).bind()
+    
     # Deploy Specify Model
-    serve.run()
+    serve.run(app, route_prefix=route_prefix, name=model_name)
     
     # Insert Data to Database Table "Model"
     session.insert_model(model_name=model_name, version=version, route_prefix=route_prefix, working_dir=working_dir, runtime_env=runtime_env)
