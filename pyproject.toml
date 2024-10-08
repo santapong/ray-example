@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ray-example"
+name = "rays"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
@@ -17,7 +17,6 @@ click = "^8.1.7"
 ujson = "^5.10.0"
 locust = "^2.31.8"
 python-multipart = "^0.0.12"
-
 
 [build-system]
 requires = ["poetry-core"]

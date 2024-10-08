@@ -21,7 +21,7 @@ class ConnectDatabase:
 
 class SessionDB:
     def __init__(self, database_url: str=SQLALCHEMY_URL, base_model: declarative_base=Base):
-        self.engine = create_engine(database_url, echo=True)
+        self.engine = create_engine(database_url, echo=False)
         self.session = sessionmaker(bind=self.engine)()
         self.base_model = base_model
 
@@ -32,12 +32,12 @@ class SessionDB:
         return self.session.query(Table).all()
         
     def getdata_by_condition(self, Table: str, model_name: str):
-        return self.session.query(Table).filter_by(model_name=model_name).all()
+        return self.session.query(Table).filter_by(model_name=model_name).all()    
         
     def __example(self):
         pass
     
-    def insert(self,  
+    def insert_model(self,  
                model_name: Optional[str],
                route_prefix: Optional[str],
                version: Optional[int],
@@ -53,7 +53,7 @@ class SessionDB:
 if __name__ == '__main__':
     SessionDB = SessionDB(SQLALCHEMY_URL, Base)
     SessionDB.create_table()
-    SessionDB.insert(id=2,model_name="test",version='2',route_prefix='/testssss',working_dir='testssss',runtime_env='test')
+    SessionDB.insert_model(id=2,model_name="test",version='2',route_prefix='/testssss',working_dir='testssss',runtime_env='test')
     
     datas = SessionDB.getdata(Table=Model)
     for data in datas:

@@ -12,5 +12,13 @@ load_dotenv()
 #SQLALCHEMY_URL = 'postgresql://postgres:Jobbullet7475@localhost:5432/test_ray'
 SQLALCHEMY_URL = 'sqlite:///C:\\Users\\User\\Desktop\\Git\\rays\\database\\data.db'
 
+S3_BUCKET = 'santapong'
+S3_PREFIX = ''
 
+# Default Log Format 
 LOGGING_FORMAT = ''
+
+# Log config
+LOGGINE_LEVEL = ''
+
+RAY_DASHBOARD_URL = 'http://localhost:8265'

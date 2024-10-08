@@ -11,10 +11,10 @@ from logging.handlers import RotatingFileHandler
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import UJSONResponse
 
-from utils import SessionDB
+from utils import SessionDB, import_modules_from_zip_s3
 from schema.database.base import Model
 
-from config import LOGGING_FORMAT, SQLALCHEMY_URL
+from config import LOGGING_FORMAT, SQLALCHEMY_URL, S3_BUCKET
 
 import ray
 from ray import serve
@@ -23,13 +23,16 @@ from ray.runtime_env import RuntimeEnv
 from dotenv import load_dotenv
 load_dotenv()
 
+# Logging Getter
 logging.getLogger(__name__)
 logging.Formatter()
 
+# Init Connection
 app = FastAPI(default_response_class=UJSONResponse)
 session = SessionDB()
 s3 = s3fs.S3FileSystem(anon=False)
 
+# App for FastAPI Zone
 @app.get('/models')
 async def getmodels():
     datas = session.getdata(Model)
@@ -41,9 +44,29 @@ async def getmodel_name(model_name: str):
     return {"msg":datas}
 
 @app.post('/test_deploy')
-async def test_deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str):
-    session.insert(model_name=model_name, version=version, route_prefix=route_prefix, working_dir=working_dir, runtime_env=runtime_env)
-    return { "msg": "Test deploy complete" }
+async def test_deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str, file: UploadFile=File(None)):
+    
+    # Check file extension
+    if not file.filename.endswith('.zip'):
+        return UJSONResponse(content={"error": "File is not a zip file"}, status_code=400)
+    
+    content = await file.read()
+    
+    # Save the uploaded file
+    s3_path = f's3://santapong/test_zip/{file.filename}'
+    with s3.open(s3_path, "wb") as f:
+        f.write(content)
+    
+    loaded_modules = import_modules_from_zip_s3(bucket_name='santapong', zip_key='test_zip/model_1.zip', s3=s3)
+    custom_module = loaded_modules[model_name]
+    
+    # Deploy Specify Model
+    serve.run()
+    
+    # Insert Data to Database Table "Model"
+    session.insert_model(model_name=model_name, version=version, route_prefix=route_prefix, working_dir=working_dir, runtime_env=runtime_env)
+
+    return UJSONResponse(content={"filename": file.filename}, status_code=200)
     
 @app.post('/deploy')
 async def deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str):
