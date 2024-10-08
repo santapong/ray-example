@@ -1,5 +1,6 @@
 import os, sys
 sys.path.append(os.path.join(os.getcwd(),'core'))
+# print(sys.path)
 
 import logging 
 from logging.handlers import RotatingFileHandler
@@ -31,7 +32,8 @@ class Model(Base):
     __tablename__ = 'Model'
 
     id = Column(Integer, primary_key=True)
-    model_name = Column(String, unique=True)
+    model_name = Column(String)
+    route_prefix = Column(String, unique=True)
     version = Column(Integer)
     working_dir = Column(String , unique=True)
     runtime_env = Column(String)
@@ -51,7 +53,7 @@ if __name__ == '__main__':
     Session = sessionmaker(bind=engine)
     
     with Session() as session:
-        new_model = Model(id=1, model_name="Hello", version='1', working_dir='test', runtime_env='test22')
+        new_model = Model(id=1, model_name="Hello", version='1', working_dir='test', runtime_env='test22', route_prefix='/hello')
         session.add(new_model)
         session.commit()
 
