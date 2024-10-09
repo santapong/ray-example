@@ -10,7 +10,7 @@ load_dotenv()
 # DB_NAME = os.getenv("DB_NAME")
 
 #SQLALCHEMY_URL = 'postgresql://postgres:Jobbullet7475@localhost:5432/test_ray'
-SQLALCHEMY_URL = 'sqlite:///C:\\Users\\User\\Desktop\\Git\\rays\\database\\data.db'
+SQLALCHEMY_URL = 'sqlite:///E:\\Repository\\ray-example\\database\\data.db'
 
 S3_BUCKET = 'santapong'
 S3_PREFIX = ''

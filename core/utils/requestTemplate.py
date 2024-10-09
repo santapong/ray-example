@@ -1,7 +1,5 @@
-from ast import Mod
 import os, sys
 
-from flask import session
 sys.path.append(os.path.join(os.getcwd(),'core'))
 
 from utils.session import SessionDB
