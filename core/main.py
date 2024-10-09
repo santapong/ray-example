@@ -1,6 +1,3 @@
-from pdb import run
-from typing_extensions import runtime
-from flask import session
 import uvicorn
 import importlib.util
 import s3fs
@@ -13,6 +10,7 @@ from fastapi.responses import UJSONResponse
 
 from utils import SessionDB, import_modules_from_zip_s3, update_file_in_zip_on_s3
 from schema.database.base import Model
+from schema.api.basemodel import ConfigResourceRay
 
 from config import LOGGING_FORMAT, SQLALCHEMY_URL, S3_BUCKET
 
@@ -43,6 +41,8 @@ async def getmodel_name(model_name: str):
     datas = session.getdata_by_condition(Model, model_name=model_name)
     return {"msg":datas}
 
+
+# TODO: Make more Adjust Parameter
 @app.post('/test_deploy')
 async def test_deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str, file: UploadFile=File(None)):
     
@@ -111,10 +111,30 @@ async def deploy(model_name: str, version: int, route_prefix: str, working_dir: 
     
     return {"msg":f"deploy {model_name} sucessfully"}
 
-# test for infer
+# TODO: Create Update Model API
+@app.patch('/model')
+async def updateModel():
+    pass
+
+# TODO: Create API for infer Data from Ray API
 @app.post('infer')
 async def inference():
     return
+
+# TODO: Make health check more flexible
+@app.get('/check_health')
+async def check_health(model_anme: str=None):
+        status = serve.status()
+        applications = status.applications
+        return { "msg" : applications }
+
+# TODO: Make it can Delete on Database
+@app.delete('/model')
+async def deleteModel(model_name: str):
+
+    serve.delete_model(model_name)
+
+    return {"msg":f"Remove {model_name} Successfully"}
 
 # Use for Test Upload Zip file to S3
 @app.post("/uploadzip/")

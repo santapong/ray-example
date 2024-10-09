@@ -19,6 +19,7 @@ logging.Formatter()
 class ConnectDatabase:
     pass
 
+# TODO: Make it can Delete and Update Data in Database
 class SessionDB:
     
     def __init__(self, database_url: str=SQLALCHEMY_URL, base_model: declarative_base=Base):
@@ -50,6 +51,12 @@ class SessionDB:
             new_data = Model(model_name=model_name, route_prefix=route_prefix, version=version, working_dir=working_dir, runtime_env= runtime_env)
             session.add(new_data)
             session.commit()
+
+    def update_model(self):
+        pass
+
+    def delete_model(self):
+        pass
 
 if __name__ == '__main__':
     SessionDB = SessionDB(SQLALCHEMY_URL, Base)

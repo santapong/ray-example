@@ -24,8 +24,13 @@ Template = {
     'applications':[]
 }
 
+def deploymentGen(session: SessionDB) -> Dict:
+    pass
 
-def generateTemplate(session: SessionDB) -> Dict:
+def runtimeEnvGen(session: SessionDB) -> Dict:
+    pass
+
+def appilcationGen(session: SessionDB) -> Dict:
     """
     Args:
         name (str): _description_
@@ -60,13 +65,12 @@ def generateTemplate(session: SessionDB) -> Dict:
     
     return applications
 
-
-
-
+def deployment() -> Dict:
+    pass 
 
 if __name__ == '__main__':
 
     session = SessionDB()
-    data = generateTemplate(session=session)
+    data = appilcationGen(session=session)
     json_data = json.dumps(data, indent=4)
     print(json_data)  # Print json_data to see the JSON representation

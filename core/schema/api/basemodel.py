@@ -3,5 +3,5 @@ sys.path.append(os.path.join(os.getcwd(os.getcwd(),'core')))
 
 from pydantic import BaseModel
 
-class DeployModel(BaseModel):
+class ConfigResourceRay(BaseModel):
     pass
