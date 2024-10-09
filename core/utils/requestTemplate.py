@@ -49,7 +49,7 @@ def generateTemplate(session: SessionDB) -> Dict:
                 "route_prefix": model.route_prefix,
                 "import_path": f"{model.model_name}:app",
                 "runtime_env": {
-                    "working_dir": model.runtime_env  # Create a proper dictionary here
+                    "working_dir": model.working_dir  # Create a proper dictionary here
                 },
                 "deployments": [
                     {'name': 'main', 'user_config': {'app': f'{model.model_name}'}},
