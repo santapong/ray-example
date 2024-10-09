@@ -11,8 +11,8 @@ from logging.handlers import RotatingFileHandler
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import UJSONResponse
 
-from core.utils import SessionDB, import_modules_from_zip_s3, update_file_in_zip_on_s3
-from core.schema.database.base import Model
+from utils import SessionDB, import_modules_from_zip_s3, update_file_in_zip_on_s3
+from schema.database.base import Model
 
 from config import LOGGING_FORMAT, SQLALCHEMY_URL, S3_BUCKET
 
@@ -111,10 +111,12 @@ async def deploy(model_name: str, version: int, route_prefix: str, working_dir: 
     
     return {"msg":f"deploy {model_name} sucessfully"}
 
+# test for infer
 @app.post('infer')
 async def inference():
     return
 
+# Use for Test Upload Zip file to S3
 @app.post("/uploadzip/")
 async def upload_zip(file: UploadFile = File(...)):
     # Check file extension

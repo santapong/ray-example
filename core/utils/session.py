@@ -20,6 +20,7 @@ class ConnectDatabase:
     pass
 
 class SessionDB:
+    
     def __init__(self, database_url: str=SQLALCHEMY_URL, base_model: declarative_base=Base):
         self.engine = create_engine(database_url, echo=False)
         self.session = sessionmaker(bind=self.engine)()
