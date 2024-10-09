@@ -2,7 +2,7 @@ import os, sys
 
 sys.path.append(os.path.join(os.getcwd(),'core'))
 
-from utils.session import SessionDB
+from core.utils.session import SessionDB
 import json
 import logging
 from logging.handlers import RotatingFileHandler
@@ -10,7 +10,7 @@ from logging.handlers import RotatingFileHandler
 from typing import Dict
 from config import RAY_DASHBOARD_URL
 
-from schema.database.base import Model
+from core.schema.database.base import Model
 
 RAY_API_PATH = 'api/serve/applications/'
 RAY_DEPLOY_URL = "/".join([RAY_DASHBOARD_URL, RAY_API_PATH])
@@ -61,6 +61,8 @@ def generateTemplate(session: SessionDB) -> Dict:
     return applications
 
 if __name__ == '__main__':
-    data = generateTemplate()
+
+    session = SessionDB()
+    data = generateTemplate(session=session)
     json_data = json.dumps(data, indent=4)
     print(json_data)  # Print json_data to see the JSON representation

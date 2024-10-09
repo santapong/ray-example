@@ -20,7 +20,7 @@ locust = "^2.31.8"
 python-multipart = "^0.0.12"
 
 [tool.poetry.scripts]
-my-script = "cli_tool.cli_tool:cli"
+test = "cli_tool.cli_tool:cli"
 
 [build-system]
 requires = ["poetry-core"]
