@@ -36,10 +36,14 @@ async def getmodels():
     datas = session.getdata(Model)
     return {"msg": datas}
     
+
+
+
 @app.get('/model/name')
 async def getmodel_name(model_name: str):
     datas = session.getdata_by_condition(Model, model_name=model_name)
     return {"msg":datas}
+
 
 
 # TODO: Make more Adjust Parameter
@@ -71,11 +75,22 @@ async def test_deploy(model_name: str, version: int, route_prefix: str, working_
     # Deploy Specify Model
     serve.run(app, route_prefix=route_prefix, name=model_name)
     
-    # Insert Data to Database Table "Model"
-    session.insert_model(model_name=model_name, version=version, route_prefix=route_prefix, working_dir=working_dir, runtime_env=runtime_env)
+    # Save deployment to Database
+    deployment = {"name": deploy.name}
 
-    return UJSONResponse(content={"filename": file.filename}, status_code=200)
+    # Insert Data to Database Table "Model"
+    session.insert_model(model_name=model_name, 
+                         version=version, 
+                         route_prefix=route_prefix, 
+                         working_dir=working_dir, 
+                         runtime_env=runtime_env,
+                         deployment=deployment)
+
+    return UJSONResponse(content={"filename": file.filename, "name": deploy.name}, status_code=200)
     
+
+
+
 @app.post('/deploy')
 async def deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str):
     """Read Python module from S3 and import it dynamically."""
@@ -111,30 +126,49 @@ async def deploy(model_name: str, version: int, route_prefix: str, working_dir: 
     
     return {"msg":f"deploy {model_name} sucessfully"}
 
+
+
+
 # TODO: Create Update Model API
 @app.patch('/model')
 async def updateModel():
     pass
+
+
+
 
 # TODO: Create API for infer Data from Ray API
 @app.post('infer')
 async def inference():
     return
 
+
+
+
 # TODO: Make health check more flexible
 @app.get('/check_health')
-async def check_health(model_anme: str=None):
+async def check_health(model_name: str=None):
         status = serve.status()
         applications = status.applications
         return { "msg" : applications }
+
+
+
 
 # TODO: Make it can Delete on Database
 @app.delete('/model')
 async def deleteModel(model_name: str):
 
-    serve.delete_model(model_name)
+    serve.delete(model_name)
 
     return {"msg":f"Remove {model_name} Successfully"}
+
+
+# TODO: Make it can Modify Model on Database and S3
+@app.patch('/model')
+async def modifyModel(model: str):
+    pass
+
 
 # Use for Test Upload Zip file to S3
 @app.post("/uploadzip/")

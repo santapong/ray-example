@@ -1,7 +1,6 @@
 import os, sys
 sys.path.append(os.path.join(os.getcwd(),"core"))
 
-from token import OP
 from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -33,7 +32,7 @@ class SessionDB:
     def getdata(self, Table) -> list:
         return self.session.query(Table).all()
         
-    def getdata_by_condition(self, Table: str, model_name: str):
+    def getdata_by_condition(self, Table: str, model_name: str) -> list:
         return self.session.query(Table).filter_by(model_name=model_name).all()    
         
     def __example(self):
@@ -45,10 +44,16 @@ class SessionDB:
                version: Optional[int],
                working_dir: Optional[str],
                runtime_env: Optional[str],
+               deployment: Optional[str],
                **kwargs
                ):
         with self.session as session:
-            new_data = Model(model_name=model_name, route_prefix=route_prefix, version=version, working_dir=working_dir, runtime_env= runtime_env)
+            new_data = Model(model_name=model_name, 
+                             route_prefix=route_prefix, 
+                             version=version, 
+                             working_dir=working_dir, 
+                             runtime_env= runtime_env,
+                             deployment=deployment)
             session.add(new_data)
             session.commit()
 

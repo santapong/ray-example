@@ -1,4 +1,5 @@
 import os, sys
+
 sys.path.append(os.path.join(os.getcwd(),'core'))
 # print(sys.path)
 
@@ -37,6 +38,7 @@ class Model(Base):
     version = Column(Integer)
     working_dir = Column(String , unique=True)
     runtime_env = Column(JSON)
+    deployment = Column(JSON)
 
 # def create_table_if_not_exist(
 #         engine: Engine

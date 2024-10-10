@@ -1,15 +1,15 @@
 import os, sys
 
 sys.path.append(os.path.join(os.getcwd(),'core'))
-
-from utils.session import SessionDB
 import json
+import requests
 import logging
 from logging.handlers import RotatingFileHandler
 
 from typing import Dict
 from config import RAY_DASHBOARD_URL
 
+from utils.session import SessionDB
 from schema.database.base import Model
 
 RAY_API_PATH = 'api/serve/applications/'
@@ -57,8 +57,7 @@ def appilcationGen(session: SessionDB) -> Dict:
                     "working_dir": model.working_dir  # Create a proper dictionary here
                 },
                 "deployments": [
-                    {'name': 'main', 'user_config': {'app': f'{model.model_name}'}},
-                    {'name': 'sub', 'user_config': {'app': f'{model.model_name}'}}
+                    model.deployment
                 ]
             }
         applications.append(application)
@@ -73,4 +72,11 @@ if __name__ == '__main__':
     session = SessionDB()
     data = appilcationGen(session=session)
     json_data = json.dumps(data, indent=4)
-    print(json_data)  # Print json_data to see the JSON representation
+    # print(json_data)  # Print json_data to see the JSON representation
+    Template['applications'] = data
+
+    json_template = json.dumps(Template, indent=4)
+    print(json_template)
+
+    requests.put(url=RAY_DEPLOY_URL, data=json_template, headers=HEADERS)
+    
