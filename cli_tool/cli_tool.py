@@ -1,6 +1,8 @@
-from selectors import SelectSelector
 import click
 import requests
+import json
+
+from core.utils.requestTemplate import Template, HEADERS, RAY_DEPLOY_URL
 
 from core.utils import SessionDB
 from core.utils import appilcationGen
@@ -34,8 +36,14 @@ def deploy():
     """
     session = SessionDB()
 
-    appilcations = appilcationGen(session=session)
-    click.echo(appilcations)
+    applications = appilcationGen(session=session)
+
+    Template['applications'] = applications
+    json_template = json.dumps(Template, indent=4)
+
+    requests.put(url=RAY_DEPLOY_URL, data=json_template, headers=HEADERS)
+
+    click.echo(json_template)
 
 
 if __name__ == '__main__':

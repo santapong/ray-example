@@ -47,8 +47,8 @@ async def getmodel_name(model_name: str):
 
 
 # TODO: Make more Adjust Parameter
-@app.post('/test_deploy')
-async def test_deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str, file: UploadFile=File(None)):
+@app.post('/register')
+async def register(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str, file: UploadFile=File(None)):
     
     # Check file extension
     if not file.filename.endswith('.zip'):
@@ -61,7 +61,7 @@ async def test_deploy(model_name: str, version: int, route_prefix: str, working_
     with s3.open(s3_path, "wb") as f:
         f.write(content)
     
-    loaded_modules = import_modules_from_zip_s3(bucket_name='santapong', zip_key='test_zip/model_1.zip', s3=s3)
+    loaded_modules = import_modules_from_zip_s3(bucket_name='santapong', zip_key=f'test_zip/{model_name}.zip', s3=s3)
     custom_module = loaded_modules[model_name]
     
     # prepare for deploy an specify Application
@@ -89,42 +89,40 @@ async def test_deploy(model_name: str, version: int, route_prefix: str, working_
     return UJSONResponse(content={"filename": file.filename, "name": deploy.name}, status_code=200)
     
 
-
-
-@app.post('/deploy')
-async def deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str):
-    """Read Python module from S3 and import it dynamically."""
-    # Use s3fs to read the file directly from S3
-    route_prefix = f'/{model_name}'
-    s3_path = f's3://santapong/test_zip/{model_name}.py'
+# @app.post('/deploy')
+# async def deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str):
+#     """Read Python module from S3 and import it dynamically."""
+#     # Use s3fs to read the file directly from S3
+#     route_prefix = f'/{model_name}'
+#     s3_path = f's3://santapong/test_zip/{model_name}.py'
     
-    s3 = s3fs.S3FileSystem(anon=False)
-    with s3.open(s3_path, 'r') as f:
-        file_content = f.read()
+#     s3 = s3fs.S3FileSystem(anon=False)
+#     with s3.open(s3_path, 'r') as f:
+#         file_content = f.read()
 
-    # Save the file content to a temporary file
-    local_file_path = f'/tmp/{model_name}.py'
-    with open(local_file_path, 'w') as local_file:
-        local_file.write(file_content)
+#     # Save the file content to a temporary file
+#     local_file_path = f'/tmp/{model_name}.py'
+#     with open(local_file_path, 'w') as local_file:
+#         local_file.write(file_content)
 
-    # Import the module dynamically using importlib
-    spec = importlib.util.spec_from_file_location(model_name, local_file_path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+#     # Import the module dynamically using importlib
+#     spec = importlib.util.spec_from_file_location(model_name, local_file_path)
+#     module = importlib.util.module_from_spec(spec)
+#     spec.loader.exec_module(module)
     
-    imported_module = module
+#     imported_module = module
     
-    # Step 2: Access the 'app' variable from the imported module
-    deploy = imported_module.Deploy
+#     # Step 2: Access the 'app' variable from the imported module
+#     deploy = imported_module.Deploy
 
-    working_dir = s3_path
-    runtime_env = RuntimeEnv(pip=['emoji==2.13.2'],working_dir=working_dir)
+#     working_dir = s3_path
+#     runtime_env = RuntimeEnv(pip=['emoji==2.13.2'],working_dir=working_dir)
 
-    app = deploy.options(name=model_name,ray_actor_options={"num_cpus":1.0,"runtime_env":runtime_env}).bind()
-    # Step 3: Use the 'app' with Ray Serve
-    serve.run(app, route_prefix=route_prefix, name=model_name)
+#     app = deploy.options(name=model_name,ray_actor_options={"num_cpus":1.0,"runtime_env":runtime_env}).bind()
+#     # Step 3: Use the 'app' with Ray Serve
+#     serve.run(app, route_prefix=route_prefix, name=model_name)
     
-    return {"msg":f"deploy {model_name} sucessfully"}
+#     return {"msg":f"deploy {model_name} sucessfully"}
 
 
 
