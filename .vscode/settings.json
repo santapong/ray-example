@@ -1,3 +1,5 @@
 {
-    "python.analysis.autoImportCompletions": true
+    "python.analysis.autoImportCompletions": true,
+    "taipyStudio.config.mainPythonFile": "config.py",
+    "taipyStudio.gUI.elementsFilePaths": []
 }

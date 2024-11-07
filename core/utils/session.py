@@ -39,29 +39,56 @@ class SessionDB:
         pass
     
     def insert_model(self,  
-               model_name: Optional[str],
-               route_prefix: Optional[str],
-               version: Optional[int],
-               working_dir: Optional[str],
-               runtime_env: Optional[str],
-               deployment: Optional[str],
-               **kwargs
-               ):
+                model_name: Optional[str],
+                route_prefix: Optional[str],
+                version: Optional[int],
+                working_dir: Optional[str],
+                runtime_env: Optional[str],
+                deployment: Optional[str],
+                **kwargs
+                ):
         with self.session as session:
             new_data = Model(model_name=model_name, 
-                             route_prefix=route_prefix, 
-                             version=version, 
-                             working_dir=working_dir, 
-                             runtime_env= runtime_env,
-                             deployment=deployment)
+                            route_prefix=route_prefix, 
+                            version=version, 
+                            working_dir=working_dir, 
+                            runtime_env= runtime_env,
+                            deployment=deployment)
             session.add(new_data)
             session.commit()
 
-    def update_model(self):
-        pass
-
-    def delete_model(self):
-        pass
+# TODO: Make it will change data on database.
+# Method 1: Delete + Insert
+# Method 2: Merge Update
+# Method 3: Upsert If exist
+    def update_model(self,
+                model_name: Optional[str],
+                route_prefix: Optional[str],
+                version: Optional[int],
+                working_dir: Optional[str],
+                runtime_env: Optional[str],
+                deployment: Optional[str],
+                **kwargs
+                ):
+        with self.session as session:
+            update_data = []
+            pass
+        
+# TODO: Make it will delete form database
+# Find Delete Method for sqlalchemy.
+    def delete_model(self,
+                model_name: Optional[str],
+                route_prefix: Optional[str],
+                version: Optional[int],
+                working_dir: Optional[str],
+                runtime_env: Optional[str],
+                deployment: Optional[str],
+                **kwargs
+                ):
+        with self.session as session:
+        
+            pass
+        
 
 if __name__ == '__main__':
     SessionDB = SessionDB(SQLALCHEMY_URL, Base)
