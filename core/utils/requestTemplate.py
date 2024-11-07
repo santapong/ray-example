@@ -24,12 +24,6 @@ Template = {
     'applications':[]
 }
 
-def deploymentGen(session: SessionDB) -> Dict:
-    pass
-
-def runtimeEnvGen(session: SessionDB) -> Dict:
-    pass
-
 def appilcationGen(session: SessionDB) -> Dict:
     """
     Args:

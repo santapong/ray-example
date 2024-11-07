@@ -1,6 +1,7 @@
 import click
 import requests
 import json
+import os
 
 from core.utils.requestTemplate import Template, HEADERS, RAY_DEPLOY_URL
 
@@ -11,7 +12,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import os
+
 
 @click.group()
 def cli():

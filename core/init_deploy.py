@@ -1,3 +1,6 @@
+## Use for test.
+# See in ./cli_tool/cli_tool.py
+
 import re
 import os, sys
 sys.path.append(os.path.join(os.getcwd(),'core'))

@@ -47,6 +47,7 @@ async def getmodel_name(model_name: str):
 
 
 # TODO: Make more Adjust Parameter
+# Adjust For Resource of Runtime_env
 @app.post('/register')
 async def register(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str, file: UploadFile=File(None)):
     
@@ -80,70 +81,30 @@ async def register(model_name: str, version: int, route_prefix: str, working_dir
 
     # Insert Data to Database Table "Model"
     session.insert_model(model_name=model_name, 
-                         version=version, 
-                         route_prefix=route_prefix, 
-                         working_dir=working_dir, 
-                         runtime_env=runtime_env,
-                         deployment=deployment)
+                        version=version, 
+                        route_prefix=route_prefix, 
+                        working_dir=working_dir, 
+                        runtime_env=runtime_env,
+                        deployment=deployment)
 
     return UJSONResponse(content={"filename": file.filename, "name": deploy.name}, status_code=200)
     
 
+##### deprecated >> Change to Register
 # @app.post('/deploy')
-# async def deploy(model_name: str, version: int, route_prefix: str, working_dir: str, runtime_env: str):
-#     """Read Python module from S3 and import it dynamically."""
-#     # Use s3fs to read the file directly from S3
-#     route_prefix = f'/{model_name}'
-#     s3_path = f's3://santapong/test_zip/{model_name}.py'
-    
-#     s3 = s3fs.S3FileSystem(anon=False)
-#     with s3.open(s3_path, 'r') as f:
-#         file_content = f.read()
-
-#     # Save the file content to a temporary file
-#     local_file_path = f'/tmp/{model_name}.py'
-#     with open(local_file_path, 'w') as local_file:
-#         local_file.write(file_content)
-
-#     # Import the module dynamically using importlib
-#     spec = importlib.util.spec_from_file_location(model_name, local_file_path)
-#     module = importlib.util.module_from_spec(spec)
-#     spec.loader.exec_module(module)
-    
-#     imported_module = module
-    
-#     # Step 2: Access the 'app' variable from the imported module
-#     deploy = imported_module.Deploy
-
-#     working_dir = s3_path
-#     runtime_env = RuntimeEnv(pip=['emoji==2.13.2'],working_dir=working_dir)
-
-#     app = deploy.options(name=model_name,ray_actor_options={"num_cpus":1.0,"runtime_env":runtime_env}).bind()
-#     # Step 3: Use the 'app' with Ray Serve
-#     serve.run(app, route_prefix=route_prefix, name=model_name)
-    
-#     return {"msg":f"deploy {model_name} sucessfully"}
-
-
-
-
-# TODO: Create Update Model API
-@app.patch('/model')
-async def updateModel():
-    pass
-
-
 
 
 # TODO: Create API for infer Data from Ray API
-@app.post('infer')
-async def inference():
+# POC do it have a way to update api on ray dashboard.
+@app.post('/infer/{model_id}')
+async def inference(model_id: int):
     return
 
 
 
 
 # TODO: Make health check more flexible
+# Not priority.
 @app.get('/check_health')
 async def check_health(model_name: str=None):
         status = serve.status()
@@ -152,12 +113,12 @@ async def check_health(model_name: str=None):
 
 
 
-
-# TODO: Make it can Delete on Database
+# TODO: Make it can Delete on Database.
 @app.delete('/model')
 async def deleteModel(model_name: str):
 
     serve.delete(model_name)
+#   session.delete_model() << Make it can delete
 
     return {"msg":f"Remove {model_name} Successfully"}
 
@@ -165,24 +126,15 @@ async def deleteModel(model_name: str):
 # TODO: Make it can Modify Model on Database and S3
 @app.patch('/model')
 async def modifyModel(model: str):
+
+#   session.update_model() << make it can update model from API.
+    
     pass
 
-
+## Not use from now
 # Use for Test Upload Zip file to S3
-@app.post("/uploadzip/")
-async def upload_zip(file: UploadFile = File(...)):
-    # Check file extension
-    if not file.filename.endswith('.zip'):
-        return UJSONResponse(content={"error": "File is not a zip file"}, status_code=400)
+# @app.post("/uploadzip/")
 
-    content = await file.read()
-    
-    # Save the uploaded file
-    s3_path = f's3://santapong/test_zip/{file.filename}'
-    with s3.open(s3_path, "wb") as f:
-        f.write(content)
-
-    return UJSONResponse(content={"filename": file.filename}, status_code=200)
 
 if __name__ == '__main__':
     uvicorn.run('main:app', host="127.0.0.1", port=8001, reload=True)
